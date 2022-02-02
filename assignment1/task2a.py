@@ -72,19 +72,29 @@ class BinaryModel:
             targets: labels/targets of each image of shape: [batch size, 1]
         """
         # TODO implement this function (Task 2a)
-        self.grad = np.zeros(X.shape[0])
-        print(outputs.shape)
-        print(targets.shape)
-        for ii in range(X.shape[0]):
-            self.grad[ii] = -((targets[ii]-outputs[ii]) @ X[ii][0])
-        
-        print(len(self.grad[1]))
-
         assert targets.shape == outputs.shape,\
             f"Output shape: {outputs.shape}, targets: {targets.shape}"
         self.grad = np.zeros_like(self.w)
         assert self.grad.shape == self.w.shape,\
             f"Grad shape: {self.grad.shape}, w: {self.w.shape}"
+        #self.grad = np.ndarray
+
+        #print(self.grad[0])
+        #print(outputs.shape)
+        #print("hei")
+        #print(targets.shape)
+        #print(X[0][:100].shape)
+
+        test_vec = targets-outputs
+        #print(test_vec.shape)
+
+        for ii in range(outputs.shape[0]):
+            #np.append(self.grad, np.sum(-(test_vec[ii])*X[ii])/outputs.shape[0])
+            self.grad[ii] = np.sum(-(test_vec[ii])*X[ii])/outputs.shape[0]
+        
+        #print(self.grad[99]+10+self.grad[2]+outputs[2])
+
+        
 
     def zero_grad(self) -> None:
         self.grad = None
