@@ -43,7 +43,7 @@ class BinaryModel:
 
     def __init__(self):
         # Define number of input nodes
-        self.I = None
+        self.I = 785 # None (original value), not entierly sure what we should put here
         self.w = np.zeros((self.I, 1))
         self.grad = None
 
@@ -79,7 +79,7 @@ class BinaryModel:
             self.grad[ii] = -((targets[ii]-outputs[ii]) @ X[ii][0])
         
         print(len(self.grad[1]))
-        
+
         assert targets.shape == outputs.shape,\
             f"Output shape: {outputs.shape}, targets: {targets.shape}"
         self.grad = np.zeros_like(self.w)
