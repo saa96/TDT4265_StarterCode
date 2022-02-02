@@ -21,7 +21,7 @@ def pre_process_images(X: np.ndarray):
         x = (X[ii,:]/255)*2 - 1
         X_new[ii,1:(X.shape[1]+1)] = x
     #print(X_new.shape)
-    
+    #my name is what? Ludvig
     return X_new
 
 
