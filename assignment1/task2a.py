@@ -14,13 +14,14 @@ def pre_process_images(X: np.ndarray):
         f"X.shape[1]: {X.shape[1]}, should be 784"
     # TODO implement this function (Task 2a)
 
-    x = np.zeros(X.shape[1])
+    x = np.zeros(X.shape[1])        
+    # TODO: should the one be the first or last element?
     X_new = np.ones((X.shape[0],X.shape[1]+1))
     for ii in range(X.shape[0]):
-        x = (X[ii]/(255/2)) - 1
-        X_new[ii,:(X.shape[1])] = x
+        x = (X[ii]/(255))*2 - 1
+        X_new[ii,1:(X.shape[1]+1)] = x
     #print(X_new.shape)
-    print(X_new[0])
+    #print(X_new[0])
 
     return X_new
 
@@ -36,6 +37,7 @@ def cross_entropy_loss(targets: np.ndarray, outputs: np.ndarray) -> float:
     assert targets.shape == outputs.shape,\
         f"Targets shape: {targets.shape}, outputs: {outputs.shape}"
     
+    #C = np.mean(-(targets.dot(np.log(outputs).T) + (1-targets).dot(np.log(1-outputs).T)))
     C_n = -(targets*np.log(outputs) + (1-targets)*np.log(1-outputs))
 
     C = np.sum(C_n)/targets.shape[0]
@@ -64,8 +66,7 @@ class BinaryModel:
         for ii in range(X.shape[0]):
             z = np.transpose(self.w) @ X[ii]  # @: np.matmul(X,Y) operator
             y[ii] = 1/(1 + np.exp(-z))
-        
-        #y = 1/(1 + np.exp(- np.matmul(X,self.w)))
+        #y = 1/(1 + np.exp(- (np.matmul(X,self.w))))
 
         return y
 
@@ -81,9 +82,9 @@ class BinaryModel:
         assert targets.shape == outputs.shape,\
             f"Output shape: {outputs.shape}, targets: {targets.shape}"
         self.grad = np.zeros_like(self.w)
-
         batch_size = targets.shape[0]
-        self.grad = -np.matmul(X.T,(targets-outputs))/batch_size
+        self.grad = -np.matmul(X.T,(targets-outputs))/batch_size#-np.matmul((targets-outputs).reshape(batch_size), X).reshape(X.shape[1],1)//batch_size
+        #print(self.grad.shape)
         
         assert self.grad.shape == self.w.shape,\
             f"Grad shape: {self.grad.shape}, w: {self.w.shape}"
