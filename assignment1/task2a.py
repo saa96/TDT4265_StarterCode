@@ -60,12 +60,12 @@ class BinaryModel:
         """
         # TODO implement this function (Task 2a)
 
-        #y = np.zeros((X.shape[0],1))
-        #for ii in range(X.shape[0]):
-        #    z = np.transpose(self.w) @ X[ii]  # @: np.matmul(X,Y) operator
-        #    y[ii] = 1/(1 + np.exp(-z))
+        y = np.zeros((X.shape[0],1))
+        for ii in range(X.shape[0]):
+            z = np.transpose(self.w) @ X[ii]  # @: np.matmul(X,Y) operator
+            y[ii] = 1/(1 + np.exp(-z))
         
-        y = 1/(1 + np.exp(- np.matmul(X,self.w)))
+        #y = 1/(1 + np.exp(- np.matmul(X,self.w)))
 
         return y
 
@@ -81,12 +81,12 @@ class BinaryModel:
         assert targets.shape == outputs.shape,\
             f"Output shape: {outputs.shape}, targets: {targets.shape}"
         self.grad = np.zeros_like(self.w)
-        assert self.grad.shape == self.w.shape,\
-            f"Grad shape: {self.grad.shape}, w: {self.w.shape}"
 
         batch_size = targets.shape[0]
         self.grad = -np.matmul(X.T,(targets-outputs))/batch_size
-        print(self.grad[0])
+        
+        assert self.grad.shape == self.w.shape,\
+            f"Grad shape: {self.grad.shape}, w: {self.w.shape}"
         
 
     def zero_grad(self) -> None:
