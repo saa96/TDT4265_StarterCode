@@ -24,7 +24,6 @@ def pre_process_images(X: np.ndarray):
     
     return X_new
 
-
 def cross_entropy_loss(targets: np.ndarray, outputs: np.ndarray) -> float:
     """
     Args:
@@ -90,14 +89,18 @@ class BinaryModel:
         #print("hei")
         #print(targets.shape)
         #print(X[0][:100].shape)
+        #for nn in range(targets.shape[0]):
+        #    print("Target: %i, output: %f, input: %" % (targets[nn],outputs[nn]))
 
         test_vec = targets-outputs
         #print(test_vec.shape)
 
-        for ii in range(outputs.shape[0]):
-            #np.append(self.grad, np.sum(-(test_vec[ii])*X[ii])/outputs.shape[0])
-            self.grad[ii] = np.sum(-(test_vec[ii])*X[ii])/outputs.shape[0]
+        for n in range(outputs.shape[0]):
+            x = np.sum(X[n])
+            print(x)
+            self.grad[n] = -(test_vec[n])*x#/outputs.shape[0]
         
+        print("Sum of grad: %f" % (np.sum(self.grad)/self.grad.shape[0]))
         #print(self.grad[99]+10+self.grad[2]+outputs[2])
 
         
