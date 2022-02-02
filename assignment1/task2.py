@@ -16,7 +16,11 @@ def calculate_accuracy(X: np.ndarray, targets: np.ndarray, model: BinaryModel) -
         Accuracy (float)
     """
     # TODO Implement this function (Task 2c)
-    accuracy = 0.0
+    y_hat = model.forward(X)
+    hit_num  = (y_hat > 0.5).sum()
+    true_num = (targets > 0.5).sum()
+
+    accuracy = hit_num/true_num
     return accuracy
 
 
@@ -35,15 +39,12 @@ class LogisticTrainer(BaseTrainer):
             loss value (float) on batch
         """
         # TODO: Implement this function (task 2b)
-        #model = BinaryModel()
-        y_hat = self.model.forward(X_batch)#model.forward (X_batch)
+        y_hat = self.model.forward(X_batch)
         self.model.backward(X_batch,y_hat,Y_batch)
 
-        #print(self.model.grad[0])
-        self.model.w -=self.model.grad * self.learning_rate
+        self.model.w += -(self.learning_rate * self.model.grad)
 
         loss = cross_entropy_loss(Y_batch, y_hat)
-        #print(loss)
         return loss
 
     def validation_step(self):
