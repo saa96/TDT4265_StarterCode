@@ -17,10 +17,10 @@ def calculate_accuracy(X: np.ndarray, targets: np.ndarray, model: BinaryModel) -
     """
     # TODO Implement this function (Task 2c)
     y_hat = model.forward(X)
-    hit_num  = (y_hat > 0.5).sum()
-    true_num = (targets > 0.5).sum()
+    hit_num  = (y_hat >= 0.5)
+    true_num = (targets >= 0.5)
 
-    accuracy = hit_num/true_num
+    accuracy = np.count_nonzero(hit_num == true_num)/X.shape[0]
     return accuracy
 
 
