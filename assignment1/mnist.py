@@ -50,7 +50,7 @@ def extract_mnist():
         pickle.dump(mnist, f)
 
 
-def init(): # originally named load, but load was never used
+def load(): 
     download_mnist()
     extract_mnist()
     dataset_path = SAVE_PATH.joinpath("mnist.pkl")
@@ -60,4 +60,5 @@ def init(): # originally named load, but load was never used
 
 
 if __name__ == '__main__':
-    init()
+    print("Potential problem: init called from mnist.")
+    init() # what is this for?
