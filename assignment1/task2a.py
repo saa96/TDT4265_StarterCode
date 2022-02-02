@@ -91,17 +91,11 @@ class BinaryModel:
         #print(X[0][:100].shape)
         #for nn in range(targets.shape[0]):
         #    print("Target: %i, output: %f, input: %" % (targets[nn],outputs[nn]))
-
-        test_vec = targets-outputs
+        l = 0
         #print(test_vec.shape)
-
-        for n in range(outputs.shape[0]):
-            x = np.sum(X[n])
-            print(x)
-            self.grad[n] = -(test_vec[n])*x#/outputs.shape[0]
-        
-        print("Sum of grad: %f" % (np.sum(self.grad)/self.grad.shape[0]))
-        #print(self.grad[99]+10+self.grad[2]+outputs[2])
+        batch_size = targets.shape[0]
+        self.grad = -np.matmul(X.T,(targets-outputs))/batch_size
+        print(self.grad[0])
 
         
 
