@@ -50,7 +50,7 @@ def extract_mnist():
         pickle.dump(mnist, f)
 
 
-def load():
+def init(): # originally named load, but load was never used
     download_mnist()
     extract_mnist()
     dataset_path = SAVE_PATH.joinpath("mnist.pkl")

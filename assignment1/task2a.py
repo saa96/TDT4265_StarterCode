@@ -36,7 +36,13 @@ def cross_entropy_loss(targets: np.ndarray, outputs: np.ndarray) -> float:
     # TODO implement this function (Task 2a)
     assert targets.shape == outputs.shape,\
         f"Targets shape: {targets.shape}, outputs: {outputs.shape}"
-    return 0
+    C_n = np.zeros_like(targets)
+    for n in range(targets.shape[0]):
+        C_n[n] = -(targets[n]*np.log(outputs[n]) + (1-targets[n])*np.log(1-outputs[n]))
+
+    C = np.sum(C_n)/targets.shape[0]
+
+    return C
 
 
 class BinaryModel:
