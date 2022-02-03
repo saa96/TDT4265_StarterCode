@@ -90,14 +90,11 @@ class BaseTrainer:
 
                     # TODO: (Task 2d): Implement early stopping here.
                     # You can access the validation loss in val_history["loss"]
-                    #print(val_history["loss"])
+                    
                     if (global_step >= 10):
-                        count = 0
-                        #TODO: figure out how to iterate over dicts
-                        for key, loss in enumerate(val_history["loss"]):
-                            if ():
-                                count += 1
-                        if (count == 10):
-                            break
+                        if (np.abs(val_history["loss"][global_step]-val_history["loss"][global_step-10]) < 0.000008):
+                            print(global_step)
+                            return train_history, val_history
+
                 global_step += 1
         return train_history, val_history
