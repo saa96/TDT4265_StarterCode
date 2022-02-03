@@ -88,7 +88,16 @@ class BaseTrainer:
                     val_history["loss"][global_step] = val_loss
                     val_history["accuracy"][global_step] = accuracy_val
 
-                    # TODO (Task 2d): Implement early stopping here.
+                    # TODO: (Task 2d): Implement early stopping here.
                     # You can access the validation loss in val_history["loss"]
+                    #print(val_history["loss"])
+                    if (global_step >= 10):
+                        count = 0
+                        #TODO: figure out how to iterate over dicts
+                        for key, loss in enumerate(val_history["loss"]):
+                            if ():
+                                count += 1
+                        if (count == 10):
+                            break
                 global_step += 1
         return train_history, val_history
