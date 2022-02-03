@@ -79,7 +79,7 @@ class BinaryModel:
             f"Output shape: {outputs.shape}, targets: {targets.shape}"
         self.grad = np.zeros_like(self.w)
         batch_size = targets.shape[0]
-        self.grad = -np.matmul(X.T,(targets-outputs))/batch_size#-np.matmul((targets-outputs).reshape(batch_size), X).reshape(X.shape[1],1)//batch_size
+        self.grad = -np.matmul(X.T,(targets-outputs))/batch_size
         #print(self.grad.shape)
         
         assert self.grad.shape == self.w.shape,\

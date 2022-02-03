@@ -1,4 +1,5 @@
 import numpy as np
+#from pytools import F
 import utils
 import matplotlib.pyplot as plt
 from task2a import cross_entropy_loss, BinaryModel, pre_process_images
@@ -80,7 +81,7 @@ if __name__ == "__main__":
     # Load dataset
     category1, category2 = 2, 3
     X_train, Y_train, X_val, Y_val = utils.load_binary_dataset(
-        category1, category2)
+        category1, category2, sample_stochastic=False) # Changed this to see spikes
 
     X_train = pre_process_images(X_train)
     X_val = pre_process_images(X_val)

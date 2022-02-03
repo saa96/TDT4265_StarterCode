@@ -1,4 +1,6 @@
+from operator import matmul
 import numpy as np
+from sympy import N, zeros
 import utils
 from task2a import pre_process_images
 np.random.seed(1)
@@ -15,17 +17,20 @@ def cross_entropy_loss(targets: np.ndarray, outputs: np.ndarray):
     # TODO implement this function (Task 3a)
     assert targets.shape == outputs.shape,\
         f"Targets shape: {targets.shape}, outputs: {outputs.shape}"
-    raise NotImplementedError
+
+    C_n = -np.sum(targets*np.log(outputs), axis=1)
+    return np.mean(C_n)
+    #raise NotImplementedError
 
 
 class SoftmaxModel:
 
     def __init__(self, l2_reg_lambda: float):
         # Define number of input nodes
-        self.I = None
+        self.I = 785
 
         # Define number of output nodes
-        self.num_outputs = None
+        self.num_outputs = 10
         self.w = np.zeros((self.I, self.num_outputs))
         self.grad = None
 
@@ -39,7 +44,13 @@ class SoftmaxModel:
             y: output of model with shape [batch size, num_outputs]
         """
         # TODO implement this function (Task 3a)
-        return None
+        z_k = np.dot(self.w.T,X.T)
+        y_hat = np.zeros_like(z_k.T)
+
+        for i in range(z_k.shape[1]):
+            y_hat[i] = np.exp(z_k[:,i])/np.sum(np.exp(z_k[:,i]))
+
+        return y_hat
 
     def backward(self, X: np.ndarray, outputs: np.ndarray, targets: np.ndarray) -> None:
         """
@@ -59,6 +70,9 @@ class SoftmaxModel:
         assert self.grad.shape == self.w.shape,\
              f"Grad shape: {self.grad.shape}, w: {self.w.shape}"
 
+        batch_size = targets.shape[0]
+        self.grad = -np.matmul(X.T,(targets-outputs))/batch_size
+
     def zero_grad(self) -> None:
         self.grad = None
 
@@ -72,7 +86,16 @@ def one_hot_encode(Y: np.ndarray, num_classes: int):
         Y: shape [Num examples, num classes]
     """
     # TODO implement this function (Task 3a)
-    raise NotImplementedError
+    num_ex = Y.shape[0]
+    out_VEC = np.zeros((num_ex,num_classes))
+
+    for i in range(num_ex):
+        out = np.zeros((num_classes))
+        out[Y[i]] = 1
+        out_VEC[i] = out
+    #print(out_VEC)
+    return out_VEC
+    #raise NotImplementedError
 
 
 def gradient_approximation_test(model: SoftmaxModel, X: np.ndarray, Y: np.ndarray):
