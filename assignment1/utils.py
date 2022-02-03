@@ -2,7 +2,7 @@ from typing import Generator
 import mnist
 import numpy as np
 import matplotlib.pyplot as plt
-
+import random
 np.random.seed(0)
 
 def batch_loader(
@@ -27,13 +27,14 @@ def batch_loader(
     indices = list(range(len(X)))
 
     # TODO (task 2e) implement dataset shuffling here.
+    # if (shuffle):
+    #     c = [(Y[i],X[i]) for i in range(batch_size)]
+    #     np.random.shuffle(c)
+    #     for i, (y,x) in enumerate(c):
+    #         Y[i] = y
+    #         X[i] = x 
     if (shuffle):
-        c = [(Y[i],X[i]) for i in range(batch_size)]
-        np.random.shuffle(c)
-        for i, (y,x) in enumerate(c):
-            Y[i] = y
-            X[i] = x 
-
+        random.shuffle(indices)
 
     for i in range(num_batches):
         # select a set of indices for each batch of samples
