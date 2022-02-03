@@ -40,7 +40,7 @@ def cross_entropy_loss(targets: np.ndarray, outputs: np.ndarray) -> float:
     #C = np.mean(-(targets.dot(np.log(outputs).T) + (1-targets).dot(np.log(1-outputs).T)))
     C_n = -(targets*np.log(outputs) + (1-targets)*np.log(1-outputs))
 
-    C = np.sum(C_n)/targets.shape[0]
+    C = np.mean(C_n)#/targets.shape[0]
 
     return C
 
@@ -62,11 +62,7 @@ class BinaryModel:
         """
         # TODO implement this function (Task 2a)
 
-        y = np.zeros((X.shape[0],1))
-        for ii in range(X.shape[0]):
-            z = np.transpose(self.w) @ X[ii]  # @: np.matmul(X,Y) operator
-            y[ii] = 1/(1 + np.exp(-z))
-        #y = 1/(1 + np.exp(- (np.matmul(X,self.w))))
+        y = 1/(1 + np.exp(- (X @ self.w)))
 
         return y
 
