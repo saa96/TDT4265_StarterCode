@@ -93,7 +93,8 @@ class BaseTrainer:
                     
                     if (global_step >= 10):
                         if (np.abs(val_history["loss"][global_step]-val_history["loss"][global_step-10]) < 0.000008):
-                            print(global_step)
+                            #print(global_step)
+                            print(epoch)
                             return train_history, val_history
 
                 global_step += 1
