@@ -71,7 +71,7 @@ class SoftmaxModel:
              f"Grad shape: {self.grad.shape}, w: {self.w.shape}"
 
         batch_size = targets.shape[0]
-        self.grad = -np.matmul(X.T,(targets-outputs))/batch_size
+        self.grad = -np.matmul(X.T,(targets-outputs))/batch_size + self.l2_reg_lambda*self.w
 
     def zero_grad(self) -> None:
         self.grad = None
