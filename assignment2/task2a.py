@@ -4,7 +4,7 @@ import typing
 np.random.seed(1)
 
 
-def pre_process_images(X: np.ndarray):
+def pre_process_images(X: np.ndarray, mean, std):
     """
     Args:
         X: images of shape [batch size, 784] in the range (0, 255)
@@ -13,15 +13,12 @@ def pre_process_images(X: np.ndarray):
     """
     assert X.shape[1] == 784,\
         f"X.shape[1]: {X.shape[1]}, should be 784"
-
-    mean = X.mean(axis=(0,1))
-    std = X.std(axis=(0,1))
     
     X = (X - mean)/std
     
     x = np.zeros((X.shape[0],X.shape[1]+1))        
-    x[:,0] = 1
-    x[:,1:(X.shape[1]+1)] = X
+    x[:,-1] = 1
+    x[:,0:X.shape[1]] = X
     
     assert x.shape[1] == 785,\
         f"x.shape[1]: {x.shape[1]}, should be 785"
@@ -85,23 +82,13 @@ class SoftmaxModel:
         Returns:
             y: output of model with shape [batch size, num_outputs]
         """
-        # TODO implement this function (Task 2b)
         # HINT: For performing the backward pass, you can save intermediate activations in variables in the forward pass.
         # such as self.hidden_layer_output = ...
-        
-        # Copied from Assignment 1 - so should be changed in a way?
-        print(len(self.ws[0][0]))
-
-        y: np.ndarray # if num_outputs = number of layers, otherwise change something
-        y = []
-        for w in self.ws:
-            print(w.shape)
-            print(X.shape)
-            y.append(1/(1 + np.exp(- (X @ w)))) # has size issues
-            print(len(y[0]))
+  
+        self.hidden_layer_output = 1/(1 + np.exp(- (X @ self.ws[0])))
+        y = 1/(1 + np.exp(- (self.hidden_layer_output @ self.ws[1])))
 
         return y
-        return None
 
     def backward(self, X: np.ndarray, outputs: np.ndarray,
                  targets: np.ndarray) -> None:
@@ -119,11 +106,14 @@ class SoftmaxModel:
         # A list of gradients.
         # For example, self.grads[0] will be the gradient for the first hidden layer
         
-        # Copied from Assignment 1 - change?
-        batch_size = targets.shape[0]
-        self.grad = -np.matmul(X.T,(targets-outputs))/batch_size
-        self.grads = []
+        z_j = X@self.ws[0]
+        f_der = np.exp(-z_j)/(1+np.exp(-z_j))**2
 
+        self.grads[1] = -(targets-outputs)
+        print(self.ws[1].shape)
+        self.grads[0] = f_der@np.sum(self.ws[1].T@self.grads[1].T,axis=1)
+        # Copied from Assignment 1 - change?
+        print(f"Grad shape: {self.grads[0].shape, self.grads[1].shape}")
         for grad, w in zip(self.grads, self.ws):
             assert grad.shape == w.shape,\
                 f"Expected the same shape. Grad shape: {grad.shape}, w: {w.shape}."
@@ -191,9 +181,13 @@ if __name__ == "__main__":
     Y = one_hot_encode(Y, 10)
     assert Y[0, 3] == 1 and Y.sum() == 1, \
         f"Expected the vector to be [0,0,0,1,0,0,0,0,0,0], but got {Y}"
-
+        
     X_train, Y_train, *_ = utils.load_full_mnist()
-    X_train = pre_process_images(X_train)
+    
+    mean = X_train.mean(axis=(0,1))
+    std = X_train.std(axis=(0,1)) 
+    
+    X_train = pre_process_images(X_train, mean, std)
     Y_train = one_hot_encode(Y_train, 10)
     assert X_train.shape[1] == 785,\
         f"Expected X_train to have 785 elements per image. Shape was: {X_train.shape}"
