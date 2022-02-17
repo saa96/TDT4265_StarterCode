@@ -13,16 +13,15 @@ def pre_process_images(X: np.ndarray):
     """
     assert X.shape[1] == 784,\
         f"X.shape[1]: {X.shape[1]}, should be 784"
-    # TODO implement this function (Task 2a)
+
+    mean = X.mean(axis=(0,1))
+    std = X.std(axis=(0,1))
     
-    X = (X - X.mean(axis=1)[:,np.newaxis])/X.std(axis=1)[:,np.newaxis]
-    print(X.shape)
+    X = (X - mean)/std
+    
     x = np.zeros((X.shape[0],X.shape[1]+1))        
-    #print(x[:,1:(X.shape[1]+1)].shape)
-    ## TODO: should the one be the first or last element?
     x[:,0] = 1
     x[:,1:(X.shape[1]+1)] = X
-    #print(x[1,:])
     
     assert x.shape[1] == 785,\
         f"x.shape[1]: {x.shape[1]}, should be 785"

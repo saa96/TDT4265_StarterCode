@@ -90,7 +90,7 @@ class BaseTrainer:
                     
                     # TODO: Implement early stopping (copy from last assignment)
                     val_history_loss = list(val_history["loss"].values())
-                    if min(val_history_loss) not in val_history_loss[-10:]:
+                    if min(val_history_loss) not in val_history_loss[-50:]:
                            print("Stopped at epoch: %i" % (epoch))
                            return train_history, val_history
 
