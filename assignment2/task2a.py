@@ -22,7 +22,7 @@ def pre_process_images(X: np.ndarray):
     ## TODO: should the one be the first or last element?
     x[:,0] = 1
     x[:,1:(X.shape[1]+1)] = X
-    print(x[1,:])
+    #print(x[1,:])
     
     assert x.shape[1] == 785,\
         f"x.shape[1]: {x.shape[1]}, should be 785"
@@ -46,7 +46,7 @@ def cross_entropy_loss(targets: np.ndarray, outputs: np.ndarray):
     C_n = -(targets*np.log(outputs) + (1-targets)*np.log(1-outputs))
     C = np.mean(C_n)
 
-    raise C
+    return C
 
 
 class SoftmaxModel:
@@ -64,7 +64,7 @@ class SoftmaxModel:
         self.use_improved_sigmoid = use_improved_sigmoid
 
         # Define number of output nodes
-        neurons_per_layer = [64, 10] # indicates that we will have two layers:
+        # neurons_per_layer = [64, 10] indicates that we will have two layers:
         # A hidden layer with 64 neurons and a output layer with 10 neurons.
         self.neurons_per_layer = neurons_per_layer
 
@@ -91,9 +91,11 @@ class SoftmaxModel:
         # such as self.hidden_layer_output = ...
         
         # Copied from Assignment 1 - so should be changed in a way?
-        print(len(self.ws[1]))
+        print(len(self.ws[0][0]))
 
-        y = 1/(1 + np.exp(- (X @ self.ws[0])))
+        for w in self.ws:
+            print(w)
+            y = 1/(1 + np.exp(- (X @ w)))
 
         return y
         return None
