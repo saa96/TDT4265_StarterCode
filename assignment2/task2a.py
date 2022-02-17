@@ -93,11 +93,13 @@ class SoftmaxModel:
         # Copied from Assignment 1 - so should be changed in a way?
         print(len(self.ws[0][0]))
 
-        y = np.zeros((X.shape[0],2)) # if num_outputs = number of layers, otherwise change something
-
+        y: np.ndarray # if num_outputs = number of layers, otherwise change something
+        y = []
         for w in self.ws:
-            print(w)
-            y = 1/(1 + np.exp(- (X @ w))) # has size issues
+            print(w.shape)
+            print(X.shape)
+            y.append(1/(1 + np.exp(- (X @ w)))) # has size issues
+            print(len(y[0]))
 
         return y
         return None
