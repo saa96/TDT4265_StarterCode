@@ -87,6 +87,12 @@ class BaseTrainer:
                     train_history["accuracy"][global_step] = accuracy_train
                     val_history["loss"][global_step] = val_loss
                     val_history["accuracy"][global_step] = accuracy_val
+                    
                     # TODO: Implement early stopping (copy from last assignment)
+                    val_history_loss = list(val_history["loss"].values())
+                    if min(val_history_loss) not in val_history_loss[-10:]:
+                           print("Stopped at epoch: %i" % (epoch))
+                           return train_history, val_history
+
                 global_step += 1
         return train_history, val_history

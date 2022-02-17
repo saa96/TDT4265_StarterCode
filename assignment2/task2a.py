@@ -14,7 +14,20 @@ def pre_process_images(X: np.ndarray):
     assert X.shape[1] == 784,\
         f"X.shape[1]: {X.shape[1]}, should be 784"
     # TODO implement this function (Task 2a)
-    return X
+    
+    X = (X - X.mean(axis=1)[:,np.newaxis])/X.std(axis=1)[:,np.newaxis]
+    print(X.shape)
+    x = np.zeros((X.shape[0],X.shape[1]+1))        
+    #print(x[:,1:(X.shape[1]+1)].shape)
+    ## TODO: should the one be the first or last element?
+    x[:,0] = 1
+    x[:,1:(X.shape[1]+1)] = X
+    print(x[1,:])
+    
+    assert x.shape[1] == 785,\
+        f"x.shape[1]: {x.shape[1]}, should be 785"
+
+    return x
 
 
 def cross_entropy_loss(targets: np.ndarray, outputs: np.ndarray):
@@ -28,7 +41,12 @@ def cross_entropy_loss(targets: np.ndarray, outputs: np.ndarray):
     assert targets.shape == outputs.shape,\
         f"Targets shape: {targets.shape}, outputs: {outputs.shape}"
     # TODO: Implement this function (copy from last assignment)
-    raise NotImplementedError
+    # Copied from assignment 1.
+
+    C_n = -(targets*np.log(outputs) + (1-targets)*np.log(1-outputs))
+    C = np.mean(C_n)
+
+    raise C
 
 
 class SoftmaxModel:
@@ -42,11 +60,11 @@ class SoftmaxModel:
         # Always reset random seed before weight init to get comparable results.
         np.random.seed(1)
         # Define number of input nodes
-        self.I = None
+        self.I = 785 # Original value = None
         self.use_improved_sigmoid = use_improved_sigmoid
 
         # Define number of output nodes
-        # neurons_per_layer = [64, 10] indicates that we will have two layers:
+        neurons_per_layer = [64, 10] # indicates that we will have two layers:
         # A hidden layer with 64 neurons and a output layer with 10 neurons.
         self.neurons_per_layer = neurons_per_layer
 
@@ -71,6 +89,13 @@ class SoftmaxModel:
         # TODO implement this function (Task 2b)
         # HINT: For performing the backward pass, you can save intermediate activations in variables in the forward pass.
         # such as self.hidden_layer_output = ...
+        
+        # Copied from Assignment 1 - so should be changed in a way?
+        print(len(self.ws[1]))
+
+        y = 1/(1 + np.exp(- (X @ self.ws[0])))
+
+        return y
         return None
 
     def backward(self, X: np.ndarray, outputs: np.ndarray,
@@ -88,6 +113,10 @@ class SoftmaxModel:
             f"Output shape: {outputs.shape}, targets: {targets.shape}"
         # A list of gradients.
         # For example, self.grads[0] will be the gradient for the first hidden layer
+        
+        # Copied from Assignment 1 - change?
+        batch_size = targets.shape[0]
+        self.grad = -np.matmul(X.T,(targets-outputs))/batch_size
         self.grads = []
 
         for grad, w in zip(self.grads, self.ws):
@@ -107,7 +136,15 @@ def one_hot_encode(Y: np.ndarray, num_classes: int):
         Y: shape [Num examples, num classes]
     """
     # TODO: Implement this function (copy from last assignment)
-    raise NotImplementedError
+    # TODO: Potentially vectorize this if possible (for optimalization)
+    num_ex = Y.shape[0]
+    out_VEC = np.zeros((num_ex,num_classes))
+
+    for i in range(num_ex):
+        out = np.zeros((num_classes))
+        out[Y[i]] = 1
+        out_VEC[i] = out
+    return out_VEC
 
 
 def gradient_approximation_test(
