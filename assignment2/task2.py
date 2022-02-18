@@ -17,6 +17,11 @@ def calculate_accuracy(X: np.ndarray, targets: np.ndarray, model: SoftmaxModel) 
     """
     # TODO: Implement this function (copy from last assignment)
     accuracy = 0
+    y_hat = model.forward(X)
+    max_idx_y_hat = np.argmax(y_hat, axis=1)
+    max_idx_targets = np.argmax(targets, axis=1)
+
+    accuracy = np.count_nonzero(max_idx_y_hat == max_idx_targets)/X.shape[0]
     return accuracy
 
 
@@ -48,9 +53,21 @@ class SoftmaxTrainer(BaseTrainer):
         """
         # TODO: Implement this function (task 2c)
 
-        loss = 0
+        y_hat = self.model.forward(X_batch)
+        self.model.backward(X_batch,y_hat,Y_batch)
 
-        loss = cross_entropy_loss(Y_batch, logits)  # sol
+        if self.use_momentum:
+            self.previous_grads[0] = self.model.grads[0] + self.momentum_gamma*self.previous_grads[0]
+            self.previous_grads[1] = self.model.grads[1] + self.momentum_gamma*self.previous_grads[1]
+            
+            
+            self.model.ws[0] -= self.learning_rate * self.previous_grads[0]
+            self.model.ws[1] -= self.learning_rate * self.previous_grads[1]
+        else:
+            self.model.ws[0] += -(self.learning_rate * self.model.grads[0])
+            self.model.ws[1] += -(self.learning_rate * self.model.grads[1])
+        
+        loss = cross_entropy_loss(Y_batch, y_hat)
 
         return loss
 
@@ -87,14 +104,19 @@ if __name__ == "__main__":
     shuffle_data = True
 
     # Settings for task 3. Keep all to false for task 2.
-    use_improved_sigmoid = False
-    use_improved_weight_init = False
+    use_improved_sigmoid = True
+    use_improved_weight_init = True
     use_momentum = False
 
     # Load dataset
     X_train, Y_train, X_val, Y_val = utils.load_full_mnist()
-    X_train = pre_process_images(X_train)
-    X_val = pre_process_images(X_val)
+    
+    mean = np.mean(X_train, axis=(0,1))
+    std = np.std(X_train, axis=(0,1))
+    print(f"Mean: {mean}")
+    print(f"Std: {std}")
+    X_train = pre_process_images(X_train, mean, std)
+    X_val = pre_process_images(X_val, mean, std)
     Y_train = one_hot_encode(Y_train, 10)
     Y_val = one_hot_encode(Y_val, 10)
     # Hyperparameters

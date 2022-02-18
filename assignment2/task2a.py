@@ -71,13 +71,20 @@ class SoftmaxModel:
         for size in self.neurons_per_layer:
             w_shape = (prev, size)
             print("Initializing weight to shape:", w_shape)
-            w = np.zeros(w_shape)
+            if use_improved_weight_init:
+                w = np.random.normal(0, 1/np.sqrt(size), w_shape)
+            else:
+                w = 2*np.random.rand(w_shape[0], w_shape[1]) - np.ones(w_shape)
             self.ws.append(w)
             prev = size
         self.grads = [None for i in range(len(self.ws))]
+        print(self.ws[0].shape,self.ws[1].shape)
 
     def sigmoid(self, z):
         return 1/(1 + np.exp(-z))
+    
+    def improved_sigmoid(self, z):
+        return 1.7159*np.tanh(2*z/3)
     
     def forward(self, X: np.ndarray) -> np.ndarray:
         """
@@ -88,10 +95,14 @@ class SoftmaxModel:
         """
         # HINT: For performing the backward pass, you can save intermediate activations in variables in the forward pass.
         # such as self.hidden_layer_output = ...
-  
-        self.hidden_layer_output = self.sigmoid(X.dot(self.ws[0]))
+        
+        if self.use_improved_sigmoid:
+            self.hidden_layer_output = self.improved_sigmoid(X.dot(self.ws[0]))
+        else:
+            self.hidden_layer_output = self.sigmoid(X.dot(self.ws[0]))
+        
         z = self.hidden_layer_output.dot(self.ws[1])
-        #z = self.sigmoid(self.hidden_layer_output)
+        
         y = np.exp(z)/np.array([np.sum(np.exp(z),axis=1)]).T
 
         return y
@@ -112,8 +123,11 @@ class SoftmaxModel:
         # A list of gradients.
         # For example, self.grads[0] will be the gradient for the first hidden layer
         a_j = self.hidden_layer_output
-        a_j_der = a_j*(1-a_j)
-        
+        if self.use_improved_sigmoid:
+            a_j_der = 2*1.7159/3 * (1 - np.tanh(2*X.dot(self.ws[0])/3)**2)
+        else:
+            a_j_der = a_j*(1-a_j)
+
         delta_k = -(targets-outputs)
         delta_j = a_j_der*(self.ws[1]@delta_k.T).T
         

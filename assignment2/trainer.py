@@ -93,6 +93,7 @@ class BaseTrainer:
                     if min(val_history_loss) not in val_history_loss[-50:]:
                            print("Stopped at epoch: %i" % (epoch))
                            return train_history, val_history
-
                 global_step += 1
+                
+        print("Stopped at epoch: %i" % (epoch))
         return train_history, val_history
