@@ -38,9 +38,10 @@ def cross_entropy_loss(targets: np.ndarray, outputs: np.ndarray):
         f"Targets shape: {targets.shape}, outputs: {outputs.shape}"
     # TODO: Implement this function (copy from last assignment)
     # Copied from assignment 1.
-
-    C_n = -(targets*np.log(outputs) + (1-targets)*np.log(1-outputs))
-    C = np.mean(C_n)
+    s = 0
+    
+    s = -np.sum(targets*np.log(outputs),axis=1)
+    C = np.mean(s)
 
     return C
 
@@ -75,6 +76,9 @@ class SoftmaxModel:
             prev = size
         self.grads = [None for i in range(len(self.ws))]
 
+    def sigmoid(self, z):
+        return 1/(1 + np.exp(-z))
+    
     def forward(self, X: np.ndarray) -> np.ndarray:
         """
         Args:
@@ -85,8 +89,10 @@ class SoftmaxModel:
         # HINT: For performing the backward pass, you can save intermediate activations in variables in the forward pass.
         # such as self.hidden_layer_output = ...
   
-        self.hidden_layer_output = 1/(1 + np.exp(- (X @ self.ws[0])))
-        y = 1/(1 + np.exp(- (self.hidden_layer_output @ self.ws[1])))
+        self.hidden_layer_output = self.sigmoid(X.dot(self.ws[0]))
+        z = self.hidden_layer_output.dot(self.ws[1])
+        #z = self.sigmoid(self.hidden_layer_output)
+        y = np.exp(z)/np.array([np.sum(np.exp(z),axis=1)]).T
 
         return y
 
@@ -105,15 +111,15 @@ class SoftmaxModel:
             f"Output shape: {outputs.shape}, targets: {targets.shape}"
         # A list of gradients.
         # For example, self.grads[0] will be the gradient for the first hidden layer
+        a_j = self.hidden_layer_output
+        a_j_der = a_j*(1-a_j)
         
-        z_j = X@self.ws[0]
-        f_der = np.exp(-z_j)/(1+np.exp(-z_j))**2
-
-        self.grads[1] = -(targets-outputs)
-        print(self.ws[1].shape)
-        self.grads[0] = f_der@np.sum(self.ws[1].T@self.grads[1].T,axis=1)
-        # Copied from Assignment 1 - change?
-        print(f"Grad shape: {self.grads[0].shape, self.grads[1].shape}")
+        delta_k = -(targets-outputs)
+        delta_j = a_j_der*(self.ws[1]@delta_k.T).T
+        
+        self.grads[1] = (delta_k.T@a_j).T/targets.shape[0]
+        self.grads[0] = (delta_j.T@X).T/targets.shape[0]
+        
         for grad, w in zip(self.grads, self.ws):
             assert grad.shape == w.shape,\
                 f"Expected the same shape. Grad shape: {grad.shape}, w: {w.shape}."
