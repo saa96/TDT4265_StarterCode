@@ -106,7 +106,16 @@ class TuningModel(nn.Module):
                 stride=1,
                 padding=1
             ),
-            nn.ReLU(),
+            nn.LeakyReLU(),
+            nn.Conv2d(
+                in_channels=32,
+                out_channels=num_filters,
+                kernel_size=5,
+                stride=1,
+                padding=2
+            ),
+            nn.LeakyReLU(),
+            nn.MaxPool2d(kernel_size=2,stride=2),
             nn.Conv2d(
                 in_channels=32,
                 out_channels=32,
@@ -114,33 +123,16 @@ class TuningModel(nn.Module):
                 stride=1,
                 padding=1
             ),
-            nn.ReLU(),
-            nn.MaxPool2d(kernel_size=2,stride=2),
+            nn.LeakyReLU(),
             nn.Conv2d(
                 in_channels=32,
-                out_channels=64,
-                kernel_size=3,
-                stride=1,
-                padding=1
-            ),
-            nn.ReLU(),
-            nn.Conv2d(
-                in_channels=64,
-                out_channels=64,
-                kernel_size=3,
-                stride=1,
-                padding=1
-            ),
-            nn.ReLU(),
-            nn.MaxPool2d(kernel_size=2,stride=2),
-            nn.Conv2d(
-                in_channels=64,
                 out_channels=128,
-                kernel_size=3,
+                kernel_size=5,
                 stride=1,
-                padding=1
+                padding=2
             ),
-            nn.ReLU(),
+            nn.LeakyReLU(),
+            nn.MaxPool2d(kernel_size=2,stride=2),
             nn.Conv2d(
                 in_channels=128,
                 out_channels=128,
@@ -148,18 +140,28 @@ class TuningModel(nn.Module):
                 stride=1,
                 padding=1
             ),
-            nn.ReLU(),
+            nn.LeakyReLU(),
+            nn.Conv2d(
+                in_channels=128,
+                out_channels=256,
+                kernel_size=5,
+                stride=1,
+                padding=2
+            ),
+            nn.LeakyReLU(),
             nn.MaxPool2d(kernel_size=2,stride=2),
         )
         # The output of feature_extractor will be [batch_size, num_filters, 16, 16]
-        self.num_output_features = 4*4*128
+        self.num_output_features = 4*4*256
         # Initialize our last fully connected layer
         # Inputs all extracted features from the convolutional layers
         # Outputs num_classes predictions, 1 for each class.
         # There is no need for softmax activation function, as this is
         # included with nn.CrossEntropyLoss
         self.classifier = nn.Sequential(
+            nn.BatchNorm1d(self.num_output_features),
             nn.Linear(self.num_output_features, 64),
+            nn.LeakyReLU(),
             nn.Linear(64, num_classes)
         )
 
@@ -202,9 +204,9 @@ class TuningModel_2(nn.Module):
             nn.Conv2d(
                 in_channels=image_channels,
                 out_channels=num_filters,
-                kernel_size=5,
+                kernel_size=3,
                 stride=1,
-                padding=2
+                padding=1
             ),
             nn.LeakyReLU(),
             nn.Conv2d(
@@ -217,13 +219,12 @@ class TuningModel_2(nn.Module):
             nn.LeakyReLU(),
             nn.MaxPool2d(kernel_size=2,stride=2),
             nn.BatchNorm2d(32),
-            nn.Dropout2d(0.15),
             nn.Conv2d(
                 in_channels=32,
                 out_channels=64,
-                kernel_size=5,
+                kernel_size=3,
                 stride=1,
-                padding=2
+                padding=1
             ),
             nn.LeakyReLU(),
             nn.Conv2d(
@@ -244,6 +245,14 @@ class TuningModel_2(nn.Module):
                 padding=1
             ),
             nn.LeakyReLU(),
+            nn.Conv2d(
+                in_channels=128,
+                out_channels=128,
+                kernel_size=3,
+                stride=1,
+                padding=1
+            ),
+            nn.LeakyReLU(),
             nn.MaxPool2d(kernel_size=2,stride=2),
             nn.BatchNorm2d(128),
         )
@@ -255,6 +264,7 @@ class TuningModel_2(nn.Module):
         # There is no need for softmax activation function, as this is
         # included with nn.CrossEntropyLoss
         self.classifier = nn.Sequential(
+            nn.BatchNorm1d(self.num_output_features),
             nn.Linear(self.num_output_features, 64),
             nn.LeakyReLU(),
             nn.Linear(64, num_classes)
@@ -303,10 +313,10 @@ def main():
     utils.set_seed(0)
     epochs = 10
     batch_size = 64
-    learning_rate = 5e-2
+    learning_rate = 1e-2
     early_stop_count = 4
     dataloaders = load_cifar10(batch_size)
-    model = TuningModel_2(image_channels=3, num_classes=10)
+    model = TuningModel(image_channels=3, num_classes=10)
     trainer = Trainer(
         batch_size,
         learning_rate,
