@@ -556,7 +556,7 @@ def create_plots(trainer: Trainer, name: str):
     plt.savefig(plot_path.joinpath(f"{name}_plot.png"))
     plt.show()
 
-def create_plots_3d(base_trainer: Trainer, improv_trainer: Trainer, name: str):
+def create_plots_task3d(base_trainer: Trainer, improv_trainer: Trainer, name: str):
     plot_path = pathlib.Path("plots")
     plot_path.mkdir(exist_ok=True)
     # Save plots and show them
@@ -581,7 +581,7 @@ def main():
     learning_rate = 1e-2
     early_stop_count = 4
     dataloaders = load_cifar10(batch_size)
-    model1 = TuningModel_2_1(image_channels=3, num_classes=10)
+    model1 = TuningModel_3(image_channels=3, num_classes=10)
     trainer1 = Trainer(
         batch_size,
         learning_rate,
@@ -593,7 +593,7 @@ def main():
     trainer1.train()
     trainer1.load_best_model()
 
-    compare = True #False
+    compare = False # set to true if you want to compare the loss function of two models
     if compare:
         model2 = TuningModel_2(image_channels=3, num_classes=10)
         trainer2 = Trainer(
@@ -607,14 +607,14 @@ def main():
         trainer2.train()
         trainer2.load_best_model()
         
-        create_plots_3d(trainer1, trainer2, "task3d")
+        create_plots_task3d(trainer1, trainer2, "task3d")
         return
 
     
     train_set, validation_set, test_set = dataloaders
-    train_loss,train_accuracy = compute_loss_and_accuracy(train_set, model, nn.CrossEntropyLoss())
-    validation_loss,validation_accuracy = compute_loss_and_accuracy(validation_set, model, nn.CrossEntropyLoss())
-    test_loss,test_accuracy = compute_loss_and_accuracy(test_set, model, nn.CrossEntropyLoss())
+    train_loss,train_accuracy = compute_loss_and_accuracy(train_set, model1, nn.CrossEntropyLoss())
+    validation_loss,validation_accuracy = compute_loss_and_accuracy(validation_set, model1, nn.CrossEntropyLoss())
+    test_loss,test_accuracy = compute_loss_and_accuracy(test_set, model1, nn.CrossEntropyLoss())
     
     print(f"Train accuracy: {train_accuracy}\nValidation accuracy: {validation_accuracy}\nTest accuracy: {test_accuracy}\n")
     print(f"Train loss: {train_loss}\nValidation loss: {validation_loss}\nTest loss: {test_loss}\n")
