@@ -295,6 +295,121 @@ class TuningModel_2(nn.Module):
             f"Expected output of forward pass to be: {expected_shape}, but got: {out.shape}"
         return out
 
+class TuningModel_2_1(nn.Module):
+
+    def __init__(self,
+                 image_channels,
+                 num_classes):
+        """
+            Is called when model is initialized.
+            Args:
+                image_channels. Number of color channels in image (3)
+                num_classes: Number of classes we want to predict (10)
+        """
+        super().__init__()
+        # TODO: Implement this function (Task  2a)
+        num_filters = 32  # Set number of filters in first conv layer
+        self.num_classes = num_classes
+        # Define the convolutional layers
+        self.feature_extractor = nn.Sequential(
+            nn.Conv2d(
+                in_channels=image_channels,
+                out_channels=num_filters,
+                kernel_size=3,
+                stride=1,
+                padding=1
+            ),
+            #nn.ReLU(),
+            nn.LeakyReLU(),
+            nn.Conv2d(
+                in_channels=32,
+                out_channels=32,
+                kernel_size=3,
+                stride=1,
+                padding=1
+            ),  
+            #nn.ReLU(),
+            nn.LeakyReLU(),
+            nn.MaxPool2d(kernel_size=2,stride=2),
+            #nn.BatchNorm2d(32),
+            nn.Conv2d(
+                in_channels=32,
+                out_channels=64,
+                kernel_size=3,
+                stride=1,
+                padding=1
+            ),
+            #nn.ReLU(),
+            nn.LeakyReLU(),
+            nn.Conv2d(
+                in_channels=64,
+                out_channels=64,
+                kernel_size=3,
+                stride=1,
+                padding=1
+            ),
+            #nn.ReLU(),
+            nn.LeakyReLU(),
+            nn.MaxPool2d(kernel_size=2,stride=2),
+            #nn.BatchNorm2d(64),
+            nn.Conv2d(
+                in_channels=64,
+                out_channels=128,
+                kernel_size=3,
+                stride=1,
+                padding=1
+            ),
+            #nn.ReLU(),
+            nn.LeakyReLU(),
+            nn.Conv2d(
+                in_channels=128,
+                out_channels=128,
+                kernel_size=3,
+                stride=1,
+                padding=1
+            ),
+            #nn.ReLU(),
+            nn.LeakyReLU(),
+            nn.MaxPool2d(kernel_size=2,stride=2),
+            #nn.BatchNorm2d(128),
+        )
+        # The output of feature_extractor will be [batch_size, num_filters, 16, 16]
+        self.num_output_features = 4*4*128
+        # Initialize our last fully connected layer
+        # Inputs all extracted features from the convolutional layers
+        # Outputs num_classes predictions, 1 for each class.
+        # There is no need for softmax activation function, as this is
+        # included with nn.CrossEntropyLoss
+        self.classifier = nn.Sequential(
+            #nn.BatchNorm1d(self.num_output_features),
+            nn.Flatten(),
+            nn.Linear(self.num_output_features, 1024),
+            #nn.ReLU(),
+            nn.LeakyReLU(),
+            nn.Linear(1024, 512),
+            #nn.ReLU(),
+            nn.LeakyReLU(),
+            nn.Linear(512, num_classes)
+        )
+
+    def forward(self, x):
+        """
+        Performs a forward pass through the model
+        Args:
+            x: Input image, shape: [batch_size, 3, 32, 32]
+        """
+        # TODO: Implement this function (Task  2a)
+        batch_size = x.shape[0]
+        #out = x    # what was given
+
+        # Copied from jupyter notebook, TODO: should possibly change it
+        out = self.feature_extractor(x)
+        out = out.view(batch_size, -1)
+        out = self.classifier(out) 
+        expected_shape = (batch_size, self.num_classes)
+        assert out.shape == (batch_size, self.num_classes),\
+            f"Expected output of forward pass to be: {expected_shape}, but got: {out.shape}"
+        return out
 
 class TuningModel_3(nn.Module):
 
@@ -441,6 +556,21 @@ def create_plots(trainer: Trainer, name: str):
     plt.savefig(plot_path.joinpath(f"{name}_plot.png"))
     plt.show()
 
+def create_plots_3d(base_trainer: Trainer, improv_trainer: Trainer, name: str):
+    plot_path = pathlib.Path("plots")
+    plot_path.mkdir(exist_ok=True)
+    # Save plots and show them
+    plt.figure(figsize=(20, 8))
+    plt.title("Cross Entropy Loss improvments")
+    utils.plot_loss(base_trainer.train_history["loss"], label="Base Training loss", npoints_to_average=10)
+    utils.plot_loss(base_trainer.validation_history["loss"], label="Base Validation loss")
+    
+    utils.plot_loss(improv_trainer.train_history["loss"], label="Improved Training loss", npoints_to_average=10)
+    utils.plot_loss(improv_trainer.validation_history["loss"], label="Improved Validation loss")
+
+    plt.legend()
+    plt.savefig(plot_path.joinpath(f"{name}_plot.png"))
+    plt.show()
 
 def main():
     # Set the random generator seed (parameters, shuffling etc).
@@ -448,21 +578,38 @@ def main():
     utils.set_seed(0)
     epochs = 10
     batch_size = 64
-    learning_rate = 2e-2
+    learning_rate = 1e-2
     early_stop_count = 4
     dataloaders = load_cifar10(batch_size)
-    model = TuningModel(image_channels=3, num_classes=10)
-    trainer = Trainer(
+    model1 = TuningModel_2_1(image_channels=3, num_classes=10)
+    trainer1 = Trainer(
         batch_size,
         learning_rate,
         early_stop_count,
         epochs,
-        model,
+        model1,
         dataloaders
     )
-    trainer.train()
-    
-    trainer.load_best_model()
+    trainer1.train()
+    trainer1.load_best_model()
+
+    compare = True #False
+    if compare:
+        model2 = TuningModel_2(image_channels=3, num_classes=10)
+        trainer2 = Trainer(
+            batch_size,
+            learning_rate,
+            early_stop_count,
+            epochs,
+            model2,
+            dataloaders
+        )
+        trainer2.train()
+        trainer2.load_best_model()
+        
+        create_plots_3d(trainer1, trainer2, "task3d")
+        return
+
     
     train_set, validation_set, test_set = dataloaders
     train_loss,train_accuracy = compute_loss_and_accuracy(train_set, model, nn.CrossEntropyLoss())
@@ -471,7 +618,7 @@ def main():
     
     print(f"Train accuracy: {train_accuracy}\nValidation accuracy: {validation_accuracy}\nTest accuracy: {test_accuracy}\n")
     print(f"Train loss: {train_loss}\nValidation loss: {validation_loss}\nTest loss: {test_loss}\n")
-    create_plots(trainer, "task2")
+    create_plots(trainer1, "task2")
 
 if __name__ == "__main__":
     main()
