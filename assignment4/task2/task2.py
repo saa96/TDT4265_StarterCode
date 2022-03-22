@@ -28,11 +28,9 @@ def calculate_iou(prediction_box, gt_box):
     else:
         intersect = 0
 
-
     # Compute union
     area_a = (a[2]-a[0])*(a[3]-a[1])
     area_b = (b[2]-b[0])*(b[3]-b[1])
-
 
     tot_area = (area_a + area_b) - intersect
 
