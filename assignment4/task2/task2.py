@@ -102,31 +102,58 @@ def get_all_box_matches(prediction_boxes, gt_boxes, iou_threshold):
             Each row includes [xmin, ymin, xmax, ymax]
     """
     # Find all possible matches with a IoU >= iou threshold
-    iou_list = np.array([])
-    pbox_list = np.array([])
-    gbox_list = np.array([])
-    for p_box in prediction_boxes:
-        temp_iou = np.array([])
-        temp_pbox = np.array([])
-        temp_gbox = np.array([])
-        for g_box in gt_boxes:
-            check = 0
-            iou = calculate_iou(p_box,g_box)
+    possible_matches = []
+    for i,p_box in enumerate(prediction_boxes):
+        for j,gt_box in enumerate(gt_boxes):
+            iou = calculate_iou(p_box,gt_box)
             if iou >= iou_threshold:
-                check = 1
-                np.append(temp_iou, iou)
-                np.append(temp_pbox, p_box)
-                np.append(temp_gbox, g_box)
-        print(temp_iou)
-        if check:
-            idx = np.argmax(temp_iou)
-            np.append(iou_list, temp_iou[idx])
-            np.append(pbox_list, temp_pbox[idx])
-            np.append(gbox_list, temp_gbox[idx])
+                possible_matches.append((i, j, iou))
+                
+    # Sort all matches on IoU in descending order       
+    sorted_matches = sorted(possible_matches, key = lambda x: x[2],reverse=True)
+    
+    # Find all matches with the highest IoU threshold
+    prediction_boxes_new = []
+    gt_boxes_new = []
+    while len(sorted_matches) != 0:
+        p_box_index = sorted_matches[0][0]
+        gt_box_index = sorted_matches[0][1]
+        
+        p_box = list(prediction_boxes[p_box_index])
+        gt_box = list(gt_boxes[gt_box_index])
+        
+        prediction_boxes_new.append(p_box)
+        gt_boxes_new.append(gt_box)
+        
+        sorted_matches = [(i, j, iou) for match in sorted_matches if match[0] != p_box_index and match[1] != gt_box_index]
+    
+    return np.array(prediction_boxes_new), np.array(gt_boxes_new)
+    
+    # iou_list = np.array([])
+    # pbox_list = np.array([])
+    # gbox_list = np.array([])
+    # for p_box in prediction_boxes:
+    #     temp_iou = np.array([])
+    #     temp_pbox = np.array([])
+    #     temp_gbox = np.array([])
+    #     for g_box in gt_boxes:
+    #         check = 0
+    #         iou = calculate_iou(p_box,g_box)
+    #         if iou >= iou_threshold:
+    #             check = 1
+    #             np.append(temp_iou, iou)
+    #             np.append(temp_pbox, p_box)
+    #             np.append(temp_gbox, g_box)
+    #     print(temp_iou)
+    #     if check:
+    #         idx = np.argmax(temp_iou)
+    #         np.append(iou_list, temp_iou[idx])
+    #         np.append(pbox_list, temp_pbox[idx])
+    #         np.append(gbox_list, temp_gbox[idx])
 
-    print(iou_list)
-    combined_list = [iou_list for _, iou_list in sorted(zip(iou_list, (pbox_list, gbox_list)))]
-    print(combined_list)
+    # print(iou_list)
+    # combined_list = [iou_list for _, iou_list in sorted(zip(iou_list, (pbox_list, gbox_list)))]
+    # print(combined_list)
 
 
     # Sort all matches on IoU in descending order
@@ -135,7 +162,7 @@ def get_all_box_matches(prediction_boxes, gt_boxes, iou_threshold):
 
 
 
-    return np.array([]), np.array([])
+    # return np.array([]), np.array([])
 
 
 def calculate_individual_image_result(prediction_boxes, gt_boxes, iou_threshold):
