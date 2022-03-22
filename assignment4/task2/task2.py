@@ -23,10 +23,8 @@ def calculate_iou(prediction_box, gt_box):
     dx = min(a[2],b[2]) - max(a[0],b[0])
     dy = min(a[3],b[3]) - max(a[1],b[1])
 
-    if (dx > 0) and (dy>0):
-        intersect = dx*dy
-    else:
-        intersect = 0
+    intersect = dx*dy
+
 
     # Compute union
     area_a = (a[2]-a[0])*(a[3]-a[1])
@@ -36,7 +34,7 @@ def calculate_iou(prediction_box, gt_box):
 
     # Compute IOU
     iou = intersect/tot_area
-    
+
     assert iou >= 0 and iou <= 1
     return iou
 
