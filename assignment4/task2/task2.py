@@ -102,6 +102,31 @@ def get_all_box_matches(prediction_boxes, gt_boxes, iou_threshold):
             Each row includes [xmin, ymin, xmax, ymax]
     """
     # Find all possible matches with a IoU >= iou threshold
+    iou_list = np.array([])
+    pbox_list = np.array([])
+    gbox_list = np.array([])
+    for p_box in prediction_boxes:
+        temp_iou = np.array([])
+        temp_pbox = np.array([])
+        temp_gbox = np.array([])
+        for g_box in gt_boxes:
+            check = 0
+            iou = calculate_iou(p_box,g_box)
+            if iou >= iou_threshold:
+                check = 1
+                np.append(temp_iou, iou)
+                np.append(temp_pbox, p_box)
+                np.append(temp_gbox, g_box)
+        print(temp_iou)
+        if check:
+            idx = np.argmax(temp_iou)
+            np.append(iou_list, temp_iou[idx])
+            np.append(pbox_list, temp_pbox[idx])
+            np.append(gbox_list, temp_gbox[idx])
+
+    print(iou_list)
+    combined_list = [iou_list for _, iou_list in sorted(zip(iou_list, (pbox_list, gbox_list)))]
+    print(combined_list)
 
 
     # Sort all matches on IoU in descending order
