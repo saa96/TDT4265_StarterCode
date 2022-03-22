@@ -10,46 +10,49 @@ def test_iou():
 
     res = calculate_iou(b1, b2)
     ans = 0
-    print("hei1")
+    print("Expected iou: {}".format(ans))
     assert res == ans, "Expected {}, got: {}".format(ans, res)
     b1 = np.array([2, 1, 4, 3])
     b2 = np.array([1, 2, 3, 4])
 
     res = calculate_iou(b1, b2)
     ans = 1/7
-    print("hei2")
+    print("Expected iou: {}".format(ans))
     assert res == ans, "Expected {}, got: {}".format(ans, res)
 
     b1 = np.array([0, 0, 1, 1])
     b2 = np.array([0, 0, 1, 1])
     res = calculate_iou(b1, b2)
     ans = 1.0
-    print("hei3")
+    print("Expected iou: {}".format(ans))
     assert res == ans, "Expected {}, got: {}".format(ans, res)
 
     b1 = np.array([0, 0, 1, 1])
     b2 = np.array([0.5, 0.5, 1, 1])
     res = calculate_iou(b1, b2)
     ans = 0.25
-    print("hei4")
+    print("Expected iou: {}".format(ans))
     assert res == ans, "Expected {}, got: {}".format(ans, res)
 
     b1 = np.array([5.5, 5.5, 8, 8])
     b2 = np.array([5.5, 3, 8, 4])
     res = calculate_iou(b1, b2)
     ans = 0.0
+    print("Expected iou: {}".format(ans))
     assert res == ans, "Expected {}, got: {}".format(ans, res)
 
     b1 = np.array([5.5, 5.5, 8, 8])
     b2 = np.array([3, 5.5, 4, 9])
     res = calculate_iou(b1, b2)
     ans = 0.0
+    print("Expected iou: {}".format(ans))
     assert res == ans, "Expected {}, got: {}".format(ans, res)
 
     b1 = np.array([522, 540, 576, 660])
     b2 = np.array([520, 540, 570, 655])
     res = round(calculate_iou(b1, b2), 5)
     ans = 0.82265
+    print("Expected iou: {}".format(ans))
     assert res == ans, "Expected {}, got: {}".format(ans, res)
 
 
