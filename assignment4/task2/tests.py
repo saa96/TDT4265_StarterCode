@@ -90,7 +90,6 @@ def test_get_all_box_matches():
         [0, 0, 1, 1]
     ])
     res1, res2 = get_all_box_matches(b1, b2, 0.5)
-    print(res1, b1)
     assert np.all(res1 == b1)
     assert np.all(res2 == b2)
     res1, res2 = get_all_box_matches(b1, b2, 1)
