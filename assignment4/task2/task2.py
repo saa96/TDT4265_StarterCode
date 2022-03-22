@@ -60,8 +60,6 @@ def calculate_precision(num_tp, num_fp, num_fn):
     else:
         return num_tp/(num_tp + num_fp)
 
-    raise NotImplementedError
-
 
 def calculate_recall(num_tp, num_fp, num_fn):
     """ Calculates the recall for the given parameters.
@@ -77,8 +75,6 @@ def calculate_recall(num_tp, num_fp, num_fn):
         return 0
     else:
         return num_tp/(num_tp + num_fn)
-
-    raise NotImplementedError
 
 
 def get_all_box_matches(prediction_boxes, gt_boxes, iou_threshold):
@@ -182,8 +178,13 @@ def calculate_individual_image_result(prediction_boxes, gt_boxes, iou_threshold)
         dict: containing true positives, false positives, true negatives, false negatives
             {"true_pos": int, "false_pos": int, false_neg": int}
     """
-
-    raise NotImplementedError
+    p_matched, gt_matched = get_all_box_matches(prediction_boxes, gt_boxes, iou_threshold)
+    
+    true_positive = p_matched.shape[0]
+    false_positive = prediction_boxes.shape[0] - true_positive
+    false_negative = gt_boxes.shape[0] - gt_matched.shape[0]
+    
+    return {"true_pos": true_positive, "false_pos": false_positive, "false_neg": false_negative}
 
 
 def calculate_precision_recall_all_images(
@@ -205,7 +206,25 @@ def calculate_precision_recall_all_images(
     Returns:
         tuple: (precision, recall). Both float.
     """
-    raise NotImplementedError
+    
+    total_true_pos = 0
+    total_false_pos = 0
+    total_false_neg = 0
+    
+    for image in range(len(all_prediction_boxes)):
+        prediction_boxes = all_prediction_boxes[image]
+        gt_boxes = all_gt_boxes[image]
+        
+        result = calculate_individual_image_result(prediction_boxes, gt_boxes, iou_threshold)
+        
+        total_true_pos += result["true_pos"]
+        total_false_pos += result["false_pos"]
+        total_false_neg += result["false_neg"]
+        
+    total_precision = calculate_precision(total_true_pos,total_false_pos,total_false_neg)
+    total_recall = calculate_recall(total_true_pos, total_false_pos, total_false_neg)
+    
+    return (total_precision,total_recall)
 
 
 def get_precision_recall_curve(
