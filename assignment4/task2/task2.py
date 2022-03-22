@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from sympy import re
 from tools import read_predicted_boxes, read_ground_truth_boxes
 
 
@@ -54,6 +55,11 @@ def calculate_precision(num_tp, num_fp, num_fn):
     Returns:
         float: value of precision
     """
+    if (num_tp + num_fp) == 0:
+        return 1
+    else:
+        return num_tp/(num_tp + num_fp)
+
     raise NotImplementedError
 
 
@@ -67,6 +73,11 @@ def calculate_recall(num_tp, num_fp, num_fn):
     Returns:
         float: value of recall
     """
+    if (num_tp + num_fn) == 0:
+        return 0
+    else:
+        return num_tp/(num_tp + num_fn)
+
     raise NotImplementedError
 
 
