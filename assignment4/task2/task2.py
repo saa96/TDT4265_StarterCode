@@ -151,7 +151,6 @@ def calculate_individual_image_result(prediction_boxes, gt_boxes, iou_threshold)
     
     return {"true_pos": true_positive, "false_pos": false_positive, "false_neg": false_negative}
 
-
 def calculate_precision_recall_all_images(
     all_prediction_boxes, all_gt_boxes, iou_threshold):
     """Given a set of prediction boxes and ground truth boxes for all images,
@@ -176,8 +175,7 @@ def calculate_precision_recall_all_images(
     total_false_pos = 0
     total_false_neg = 0
     
-    for prediction_boxes in all_prediction_boxes:
-        for gt_boxes in all_gt_boxes:
+    for prediction_boxes, gt_boxes in zip(all_prediction_boxes, all_gt_boxes):
         
             result = calculate_individual_image_result(prediction_boxes, gt_boxes, iou_threshold)
         
@@ -275,15 +273,18 @@ def calculate_mean_average_precision(precisions, recalls):
     recall_levels = np.linspace(0, 1.0, 11)
     p = np.zeros_like(recall_levels)
     
-    for i,r_lvl in enumerate(recall_levels):
-        r = [j for j in range(len(recalls)) if recalls[j] >= r_lvl]
-        if len(r) > 0:
-            p[i] = max(precisions[r])
-        else:
-            p[i] = 0
-        print(f"r = {r}\n p = {p}")
+    for r_lvl_index,r_lvl in enumerate(recall_levels):
         
-    average_precision = np.sum(p)/p.shape[0]
+        recall_valid_index = [j for j in range(len(recalls)) if recalls[j] >= r_lvl]
+        if len(recall_valid_index) > 0:
+            p[r_lvl_index] = max(precisions[recall_valid_index])
+        else:
+            p[r_lvl_index] = 0
+        print(f"r = {recall_valid_index}\n p = {p}")
+    print(np.sum(p))
+    print(p.shape[0])
+    print(len(p))
+    average_precision = np.sum(p)/len(p)
     return average_precision
 
 
