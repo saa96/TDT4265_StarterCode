@@ -165,7 +165,7 @@ class BasicModel(torch.nn.Module):
         batch_size = x.shape[0]
         
         out_features = self.feature_extractor(x)
-        out = out.view(batch_size, -1)
+        out_features = out_features.view(batch_size, -1)
         
         for idx, feature in enumerate(out_features):
             out_channel = self.out_channels[idx]
