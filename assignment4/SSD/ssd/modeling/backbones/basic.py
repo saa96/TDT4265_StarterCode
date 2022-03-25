@@ -20,10 +20,138 @@ class BasicModel(torch.nn.Module):
         super().__init__()
         self.out_channels = output_channels
         self.output_feature_shape = output_feature_sizes
+        
+        self.feature_extractor = torch.nn.Sequential(
+            ## Layer 1, resolution 38x38
+            torch.nn.Conv2d(
+                in_channels=image_channels,
+                out_channels=32,
+                kernel_size=3,
+                stride=1,
+                padding=1
+            ),
+            torch.nn.RelU(),
+            torch.nn.MaxPool2d(kernel_size=2,stride=2),
+            torch.nn.Conv2d(
+                in_channels=32,
+                out_channels=64,
+                kernel_size=3,
+                stride=1,
+                padding=1
+            ),
+            torch.nn.RelU(),
+            torch.nn.MaxPool2d(kernel_size=2,stride=2),
+            torch.nn.Conv2d(
+                in_channels=64,
+                out_channels=64,
+                kernel_size=3,
+                stride=1,
+                padding=1
+            ),
+            torch.nn.RelU(),
+            torch.nn.Conv2d(
+                in_channels=64,
+                out_channels=output_channels[0],
+                kernel_size=3,
+                stride=2,
+                padding=1
+            ),
+            torch.nn.RelU(),
+            ## Layer 2, resolution 19x19
+            torch.nn.ReLU(),
+            torch.nn.Conv2d(
+                in_channels=output_channels[0],
+                out_channels=128,
+                kernel_size=3,
+                stride=1,
+                padding=1
+            ),
+            torch.nn.ReLU(),
+            torch.nn.Conv2d(
+                in_channels=128,
+                out_channels=output_channels[1],
+                kernel_size=3,
+                stride=2,
+                padding=1
+            ),
+            torch.nn.ReLU(),
+            ## Layer 3, resolution 10x10
+            torch.nn.ReLU(),
+            torch.nn.Conv2d(
+                in_channels=output_channels[1],
+                out_channels=256,
+                kernel_size=3,
+                stride=1,
+                padding=1
+            ),
+            torch.nn.ReLU(),
+            torch.nn.Conv2d(
+                in_channels=256,
+                out_channels=output_channels[2],
+                kernel_size=3,
+                stride=2,
+                padding=1
+            ),
+            torch.nn.ReLU(),
+            ## Layer 4, resolution 5x5
+            torch.nn.ReLU(),
+            torch.nn.Conv2d(
+                in_channels=output_channels[2],
+                out_channels=128,
+                kernel_size=3,
+                stride=1,
+                padding=1
+            ),
+            torch.nn.ReLU(),
+            torch.nn.Conv2d(
+                in_channels=128,
+                out_channels=output_channels[3],
+                kernel_size=3,
+                stride=2,
+                padding=1
+            ),
+            torch.nn.ReLU(),
+            ## Layer 5, resolution 3x3
+            torch.nn.ReLU(),
+            torch.nn.Conv2d(
+                in_channels=output_channels[3],
+                out_channels=128,
+                kernel_size=3,
+                stride=1,
+                padding=1
+            ),
+            torch.nn.ReLU(),
+            torch.nn.Conv2d(
+                in_channels=128,
+                out_channels=output_channels[4],
+                kernel_size=3,
+                stride=2,
+                padding=1
+            ),
+            torch.nn.ReLU(),
+            ## Layer 6, resolution 1x1
+            torch.nn.ReLU(),
+            torch.nn.Conv2d(
+                in_channels=output_channels[4],
+                out_channels=128,
+                kernel_size=3,
+                stride=1,
+                padding=1
+            ),
+            torch.nn.ReLU(),
+            torch.nn.Conv2d(
+                in_channels=128,
+                out_channels=output_channels[5],
+                kernel_size=3,
+                stride=1,
+                padding=0
+            ),
+            torch.nn.ReLU()
+        )
 
     def forward(self, x):
         """
-        The forward functiom should output features with shape:
+        The forward function should output features with shape:
             [shape(-1, output_channels[0], 38, 38),
             shape(-1, output_channels[1], 19, 19),
             shape(-1, output_channels[2], 10, 10),
@@ -34,7 +162,11 @@ class BasicModel(torch.nn.Module):
         where out_features[0] should have the shape:
             shape(-1, output_channels[0], 38, 38),
         """
-        out_features = []
+        batch_size = x.shape[0]
+        
+        out_features = self.feature_extractor(x)
+        out = out.view(batch_size, -1)
+        
         for idx, feature in enumerate(out_features):
             out_channel = self.out_channels[idx]
             h, w = self.output_feature_shape[idx]
