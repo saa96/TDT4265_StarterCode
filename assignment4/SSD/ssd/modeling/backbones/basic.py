@@ -30,7 +30,7 @@ class BasicModel(torch.nn.Module):
                 stride=1,
                 padding=1
             ),
-            torch.nn.RelU(),
+            torch.nn.ReLU(),
             torch.nn.MaxPool2d(kernel_size=2,stride=2),
             torch.nn.Conv2d(
                 in_channels=32,
@@ -39,7 +39,7 @@ class BasicModel(torch.nn.Module):
                 stride=1,
                 padding=1
             ),
-            torch.nn.RelU(),
+            torch.nn.ReLU(),
             torch.nn.MaxPool2d(kernel_size=2,stride=2),
             torch.nn.Conv2d(
                 in_channels=64,
@@ -48,7 +48,7 @@ class BasicModel(torch.nn.Module):
                 stride=1,
                 padding=1
             ),
-            torch.nn.RelU(),
+            torch.nn.ReLU(),
             torch.nn.Conv2d(
                 in_channels=64,
                 out_channels=output_channels[0],
@@ -56,7 +56,7 @@ class BasicModel(torch.nn.Module):
                 stride=2,
                 padding=1
             ),
-            torch.nn.RelU(),
+            torch.nn.ReLU(),
             ## Layer 2, resolution 19x19
             torch.nn.ReLU(),
             torch.nn.Conv2d(
