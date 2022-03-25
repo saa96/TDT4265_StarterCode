@@ -21,7 +21,7 @@ class BasicModel(torch.nn.Module):
         self.out_channels = output_channels
         self.output_feature_shape = output_feature_sizes
         
-        self.feature_extractor = torch.nn.Sequential(
+        self.feature_map_1 = torch.nn.Sequential(
             ## Layer 1, resolution 38x38
             torch.nn.Conv2d(
                 in_channels=image_channels,
@@ -56,7 +56,9 @@ class BasicModel(torch.nn.Module):
                 stride=2,
                 padding=1
             ),
-            torch.nn.ReLU(),
+            torch.nn.ReLU()
+        )
+        self.feature_map_2 = torch.nn.Sequential(
             ## Layer 2, resolution 19x19
             torch.nn.ReLU(),
             torch.nn.Conv2d(
@@ -74,7 +76,9 @@ class BasicModel(torch.nn.Module):
                 stride=2,
                 padding=1
             ),
-            torch.nn.ReLU(),
+            torch.nn.ReLU()
+        )
+        self.feature_map_3 = torch.nn.Sequential(
             ## Layer 3, resolution 10x10
             torch.nn.ReLU(),
             torch.nn.Conv2d(
@@ -92,7 +96,9 @@ class BasicModel(torch.nn.Module):
                 stride=2,
                 padding=1
             ),
-            torch.nn.ReLU(),
+            torch.nn.ReLU()
+        )
+        self.feature_map_4 = torch.nn.Sequential(
             ## Layer 4, resolution 5x5
             torch.nn.ReLU(),
             torch.nn.Conv2d(
@@ -110,7 +116,9 @@ class BasicModel(torch.nn.Module):
                 stride=2,
                 padding=1
             ),
-            torch.nn.ReLU(),
+            torch.nn.ReLU()
+        )
+        self.feature_map_5 = torch.nn.Sequential(
             ## Layer 5, resolution 3x3
             torch.nn.ReLU(),
             torch.nn.Conv2d(
@@ -128,7 +136,9 @@ class BasicModel(torch.nn.Module):
                 stride=2,
                 padding=1
             ),
-            torch.nn.ReLU(),
+            torch.nn.ReLU()
+        )
+        self.feature_map_6 = torch.nn.Sequential(
             ## Layer 6, resolution 1x1
             torch.nn.ReLU(),
             torch.nn.Conv2d(
@@ -162,10 +172,22 @@ class BasicModel(torch.nn.Module):
         where out_features[0] should have the shape:
             shape(-1, output_channels[0], 38, 38),
         """
-        batch_size = x.shape[0]
         
-        out_features = self.feature_extractor(x)
-        out_features = out_features.view(batch_size, -1)
+        
+        
+        out_features = []
+        x = self.feature_map_1(x)
+        out_features.append(x)
+        x = self.feature_map_2(x)
+        out_features.append(x)
+        x = self.feature_map_3(x)
+        out_features.append(x)
+        x = self.feature_map_4(x)
+        out_features.append(x)
+        x = self.feature_map_5(x)
+        out_features.append(x)
+        x = self.feature_map_6(x)
+        out_features.append(x)
         
         for idx, feature in enumerate(out_features):
             out_channel = self.out_channels[idx]
